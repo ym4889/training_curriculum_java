@@ -58,7 +58,7 @@ public class CalendarsController {
     LocalDate todaysDate = LocalDate.now();
     List<PlanEntity> plans = planRepository.findByDateBetween(todaysDate, todaysDate.plusDays(6));
 
-    String[] weekdays = {"(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"};
+    String[] wdays = {"(日)", "(月)", "(火)", "(水)", "(木)", "(金)", "(土)"};
 
     for (int x = 0; x < 7; x++) {
       Map<String, Object> dayMap = new HashMap<>();
@@ -71,9 +71,19 @@ public class CalendarsController {
           }
       }
 
+// 曜日番号を計算
+      int wdayNum =(todaysDate.getDayOfWeek().getValue() + x) % 7;
+   
+      if(wdayNum >= 7){
+        wdayNum = wdayNum -7;
+      }
+
+    
+
       dayMap.put("month", currentDate.getMonthValue());
       dayMap.put("date", currentDate.getDayOfMonth());
       dayMap.put("plans", todayPlans);
+      dayMap.put("wday", wdays[wdayNum]);
 
       weekDays.add(dayMap);
     }
