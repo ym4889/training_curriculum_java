@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.validator.internal.engine.groups.ValidationOrder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,18 +34,22 @@ public class CalendarsController {
     List<Map<String, Object>> weekDays = getWeek();
     model.addAttribute("weekDays", weekDays);
     return "calendars/index";
+
   }
+  
+
 
   // 予定の保存
   @PostMapping("/calendars")
-  public String create(@ModelAttribute("planForm") @Validated PlanForm planForm, BindingResult result) {
+  public String create(@ModelAttribute("planForm") @Validated(ValidationOrder.class) PlanForm planForm,
+                        BindingResult result) {
     if (!result.hasErrors()) {
       PlanEntity newPlan = new PlanEntity();
       newPlan.setDate(planForm.getDate());
       newPlan.setPlan(planForm.getPlan());
       planRepository.insert(newPlan);
     }
-    return "redirect:/calendars";
+    return "redirect:/";
   }
 
   private List<Map<String, Object>> getWeek() {
@@ -66,9 +71,19 @@ public class CalendarsController {
           }
       }
 
-      day_map.put("month", currentDate.getMonthValue());
-      day_map.put("date", currentDate.getDayOfMonth());
-      day_map.put("plans", todayPlans);
+// 曜日番号を計算
+      int wdayNum =(todaysDate.getDayOfWeek().getValue() + x) % 7;
+   
+      if(wdayNum >= 7){
+        wdayNum = wdayNum -7;
+      }
+
+    
+
+      dayMap.put("month", currentDate.getMonthValue());
+      dayMap.put("date", currentDate.getDayOfMonth());
+      dayMap.put("plans", todayPlans);
+      dayMap.put("wday", wdays[wdayNum]);
 
       weekDays.add(dayMap);
     }
